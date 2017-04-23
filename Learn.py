@@ -14,7 +14,7 @@ curr = [0,0]
 step = 0
 alpha = 0.5
 gamma = 0.85
-SIZE = 3
+SIZE = 4
 
 def updateQTableCost(curr):
 
@@ -30,8 +30,8 @@ def updateQTableCost(curr):
 	maxi = 0
 	flag = True
 	for i in range(4):
-
 		
+		#cost = []
 		#NORTH
 		flag = True
 		if i == 0:
@@ -44,18 +44,18 @@ def updateQTableCost(curr):
 				flag = False
 			else:
 				reward = 1
-			print('-------------------flag1-----------------------', flag)
 			if (flag == True):
-				print "in first"
 				cost0 = alpha * (grid[x][y] + gamma * grid[x][y+1] + reward)
 			else:
-				print "In second"
 				cost0 = alpha * (grid[x][y] + gamma * grid[x][y] + reward)
 			
 			qTable[x][y][0] = cost0
 			if cost0 >= maxi:
 				maxi = cost0
-				cost.append(maxi)
+				cost.append(cost0)
+			else:
+				cost.append(cost0)
+			#print('-------------------cost1-----------------------', cost)
 
 		#EAST
 		elif i == 1:
@@ -70,12 +70,9 @@ def updateQTableCost(curr):
 			else:
 				reward = 1
 
-			print('-------------------flag-----------------------', flag)
 			if (flag == True):
-				print "In fisrt"	
 				cost1 = alpha * (grid[x][y] + gamma * grid[x+1][y] + reward)
 			else:
-				print "In second"
 				cost1 = alpha * (grid[x][y] + gamma * grid[x][y] + reward)
 
 			qTable[x][y][1] = cost1
@@ -83,8 +80,9 @@ def updateQTableCost(curr):
 				cost.pop()
 				maxi = cost1
 				cost.append(cost1)
-			elif cost1 == maxi:
-				cost.append(maxi)
+			else:
+				cost.append(cost1)
+			#print('-------------------cost2-----------------------', cost)
 
 		#WEST
 		elif i == 2:
@@ -109,11 +107,11 @@ def updateQTableCost(curr):
 				cost.pop()
 				maxi = cost2
 				cost.append(cost2)
-			elif cost2 == maxi:
-				cost.append(maxi)
+			else:
+				cost.append(cost2)
+			#print('-------------------cost3-----------------------', cost)
 
 		#SOUTH
-
 		elif i == 3:
 			flag = True
 			reward = 0
@@ -136,10 +134,11 @@ def updateQTableCost(curr):
 				cost.pop()
 				maxi = cost3
 				cost.append(cost3)
-			elif cost3 == maxi:
-				cost.append(maxi)
+			else:
+				cost.append(cost3)
+			#print('-------------------cost4-----------------------', cost)
 
-		print('-------------------cost-----------------------', cost)
+		#print('-------------------cost-----------------------', cost)
 		maxi_cost = max(cost)
 		#index = cost.index(maxi_cost)
 		index = random.randrange(len(cost))
