@@ -1,176 +1,135 @@
 import numpy as np
 import random
+import matplotlib.pyplot as plt
 
 #positive = +1
 #negative = -2
-#vicotry = +2
+#vicotry = +100
 
 #0 = North
 #1 = East
-#2 = West
-#3 = South
+#2 = South
+#3 = West
+
 
 curr = [0,0]	
-step = 0
 alpha = 0.5
 gamma = 0.85
-SIZE = 4
-
-def updateQTableCost(curr):
-
-	print('-------------------curr-----------------------', curr)
-	x = curr[0]
-	y = curr[1]
-	cost = []
-	cost0 = 0
-	cost1 = 0
-	cost2 = 0
-	cost3 = 0
-	step = 0
-	maxi = 0
-	flag = True
-	for i in range(4):
-		
-		#cost = []
-		#NORTH
-		flag = True
-		if i == 0:
-			reward = 0
-			if y + 1 > SIZE - 1:
-				reward = -2
-				flag = False
-			elif x == SIZE and y+1 == SIZE:
-				reward = 2
-				flag = False
-			else:
-				reward = 1
-			if (flag == True):
-				cost0 = alpha * (grid[x][y] + gamma * grid[x][y+1] + reward)
-			else:
-				cost0 = alpha * (grid[x][y] + gamma * grid[x][y] + reward)
-			
-			qTable[x][y][0] = cost0
-			if cost0 >= maxi:
-				maxi = cost0
-				cost.append(cost0)
-			else:
-				cost.append(cost0)
-			#print('-------------------cost1-----------------------', cost)
-
-		#EAST
-		elif i == 1:
-			flag = True
-			reward = 0
-			if x + 1 > SIZE - 1:
-				reward = -2
-				flag = False
-			elif x + 1 == SIZE and y == SIZE:
-				reward = 2
-				flag = False
-			else:
-				reward = 1
-
-			if (flag == True):
-				cost1 = alpha * (grid[x][y] + gamma * grid[x+1][y] + reward)
-			else:
-				cost1 = alpha * (grid[x][y] + gamma * grid[x][y] + reward)
-
-			qTable[x][y][1] = cost1
-			if cost1 > maxi:
-				cost.pop()
-				maxi = cost1
-				cost.append(cost1)
-			else:
-				cost.append(cost1)
-			#print('-------------------cost2-----------------------', cost)
-
-		#WEST
-		elif i == 2:
-			flag = True
-			reward = 0
-			if x - 1 < 0:
-				reward = -2
-				flag = False
-			elif x - 1 == SIZE and y == SIZE:
-				reward = 2
-				flag = False
-			else:
-				reward = 1
-
-			if (flag == True):
-				cost2 = alpha * (grid[x][y] + gamma * grid[x-1][y] + reward)
-			else:
-				cost2 = alpha * (grid[x][y] + gamma * grid[x][y] + reward)
-
-			qTable[x][y][2] = cost2
-			if cost2 > maxi:
-				cost.pop()
-				maxi = cost2
-				cost.append(cost2)
-			else:
-				cost.append(cost2)
-			#print('-------------------cost3-----------------------', cost)
-
-		#SOUTH
-		elif i == 3:
-			flag = True
-			reward = 0
-			if y - 1 < 0:
-				reward = -2
-				flag = False
-			elif x == SIZE and y - 1 == SIZE:
-				reward = 2
-				flag = False
-			else:
-				reward = 1
-
-			if (flag == True):
-				cost3 = alpha * (grid[x][y] + gamma * grid[x][y-1] + reward)
-			else:
-				cost3 = alpha * (grid[x][y] + gamma * grid[x][y] + reward)
-
-			qTable[x][y][3] = cost3
-			if cost3 > maxi:
-				cost.pop()
-				maxi = cost3
-				cost.append(cost3)
-			else:
-				cost.append(cost3)
-			#print('-------------------cost4-----------------------', cost)
-
-		#print('-------------------cost-----------------------', cost)
-		maxi_cost = max(cost)
-		#index = cost.index(maxi_cost)
-		index = random.randrange(len(cost))
-
-	grid[x][y] = maxi_cost
-	
-	step += 1
-	return index
-
-
+SIZE = 15
 grid = np.zeros(shape=(SIZE, SIZE))
 qTable = np.zeros(shape=(SIZE, SIZE, 4))
-flag = True
+eps = 70
+Qcost = 0.0
 
-while(flag):
-	if curr[0] == SIZE-1 and curr[1] == SIZE-1:
-		flag = False
-		print('-------------------curr-----------------------', curr)
-		break
+def takeRandom():
+	rand = random.randrange(100)
+	if rand >= eps:
+		return False #We will not be going random	
+	return True #We will be going random
+
+def updateAgent(curr,direction):
+
+	x = curr[0] 
+	y = curr[1] 
+	my_list = []
+
+	#North
+	if direction == 0:
+		if x > 0:
+			x -= 1
+	
+	#East
+	if direction == 1:
+		if y < SIZE - 1:
+			y += 1
+	
+	#South
+	if direction == 2:
+		if x < SIZE-1:
+			x += 1
+	
+	#West
+	if direction == 3:
+		if y > 0:
+			y -= 1
+
+	if x == curr[0] and y == curr[0]:
+		#We have gone off the edge and returned back to same state
+		reward = -2.0
+	elif x == SIZE-1 and y == SIZE-1:
+		#We have reached the goal 
+		reward = 100.0
 	else:
-		#will tell where to got and return a ma element. 
-		direction = updateQTableCost(curr)
+		#Have moved to correct location
+		reward = 1.0
 
-		#Update the value of the current based on the direction
-		if direction == 0:
-			if curr[1] < SIZE-1:
-				curr[1] += 1
-		elif direction == 1:
-			if curr[0] < SIZE-1:
-				curr[0] += 1
-		elif direction == 2:
-			if curr[0] > 0:
-				curr[0] -= 1
-		elif curr[1] > 0:
-			curr[1] -= 1
+	next = [x,y]
+	my_list.append(reward)
+	my_list.append(next)
+	return my_list
+
+
+def updateQTable(reward,next_location,curr,direction):
+
+	global Qcost
+	x = next_location[0]
+	y = next_location[1]
+	a = curr[0]
+	b = curr[1]
+
+	Qcost = qTable[a][b][direction] + alpha * (reward + gamma * max(qTable[x][y]) - qTable[a][b][direction])
+	qTable[a][b][direction] = Qcost
+	
+	return Qcost
+
+
+if __name__ == "__main__":
+	
+	next_location = [0,0]
+	cnt = 0
+	direction = 0
+	cnt_list = []
+	range_list = range(1000)
+	for i in range(1000):	
+		flag = True
+		
+		curr = [0,0]
+		cnt = 0
+		while(flag):
+			#print('-------------------curr-----------------------', curr)
+			x = curr[0]
+			y = curr[1]
+
+			if x == SIZE-1 and y == SIZE-1:
+				flag = False
+				print('-------------------cnt-----------------------', cnt)
+				cnt_list.append(cnt)
+				if i == 1000:
+					plt.plot(cnt_list,range_list)
+					plt.show()
+				break
+			else:
+				cnt += 1
+				
+			#Decide if we should go random or not
+			random_flag = takeRandom()
+
+			#Decide the direction
+			if(random_flag):
+				direction = random.randrange(4)
+			else:
+				maxi = max(qTable[x][y])
+				indexes = [i for i, j in enumerate(qTable[x][y]) if j == maxi]
+				if len(indexes) == 1:
+					direction = indexes[0]
+				else:
+					direction = random.choice(indexes)
+
+			direction_list = updateAgent(curr,direction)
+			reward = direction_list[0]
+			next_location = direction_list[1]
+			#Direction will have [reward,next_location]
+
+			QCost = updateQTable(reward,next_location,curr,direction)
+
+			curr = next_location
