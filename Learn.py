@@ -16,9 +16,9 @@ curr = [0,0]
 alpha = 0.5
 gamma = 0.85
 SIZE = 15
-grid = np.zeros(shape=(SIZE, SIZE))
-qTable = np.zeros(shape=(SIZE, SIZE, 4))
-eps = 70
+#qTable = np.zeros(shape=(SIZE, SIZE, 4))
+qTable = np.array([3.0] * SIZE * SIZE * 4).reshape(SIZE,SIZE,4)
+eps = 50
 Qcost = 0.0
 
 def takeRandom():
@@ -55,13 +55,14 @@ def updateAgent(curr,direction):
 
 	if x == curr[0] and y == curr[0]:
 		#We have gone off the edge and returned back to same state
-		reward = -2.0
+		reward = -10.0
+
 	elif x == SIZE-1 and y == SIZE-1:
 		#We have reached the goal 
 		reward = 100.0
 	else:
 		#Have moved to correct location
-		reward = 1.0
+		reward = -2.0
 
 	next = [x,y]
 	my_list.append(reward)
@@ -90,13 +91,12 @@ if __name__ == "__main__":
 	direction = 0
 	cnt_list = []
 	range_list = range(1000)
-	for i in range(1000):	
+	for i in range(1000):
 		flag = True
 		
 		curr = [0,0]
 		cnt = 0
 		while(flag):
-			#print('-------------------curr-----------------------', curr)
 			x = curr[0]
 			y = curr[1]
 
@@ -104,9 +104,6 @@ if __name__ == "__main__":
 				flag = False
 				print('-------------------cnt-----------------------', cnt)
 				cnt_list.append(cnt)
-				if i == 1000:
-					plt.plot(cnt_list,range_list)
-					plt.show()
 				break
 			else:
 				cnt += 1
@@ -133,3 +130,6 @@ if __name__ == "__main__":
 			QCost = updateQTable(reward,next_location,curr,direction)
 
 			curr = next_location
+
+	plt.plot(range_list, cnt_list)
+	plt.show()
