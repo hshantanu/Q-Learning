@@ -18,3 +18,5 @@ axis
 • Initialize the Q-table to some constant positive value and generate a
 new learning curve. Explain briefly the differences you see with the
 first learning curve and why they occurred.
+
+The project is working well. 
